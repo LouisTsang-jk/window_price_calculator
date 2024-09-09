@@ -28,10 +28,10 @@ services:
         caPort: 9000
         customRuntimeConfig:
           command:
-            - npm
+            - sh
           args:
-            - run
-            - start
+            - -c
+            - npm install && npm run start
       triggers:
         - name: httpTrigger
           type: http
