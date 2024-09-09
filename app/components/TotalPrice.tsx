@@ -10,8 +10,13 @@ import {
 export default function TotalPrice({ windows, prices, additionalCosts }) {
   const calculateWindowPrice = (params): number => {
     return Object.entries(params).reduce((total, [key, value]) => {
-      const price =
-        prices[key.replace("平方数", "每平方价格").replace("个数", "价格")];
+      let price;
+      if (key === "转方角米数") {
+        price = prices["转方角每米价格"];
+      } else {
+        price =
+          prices[key.replace("平方数", "每平方价格").replace("个数", "价格")];
+      }
       return total + (Number(value) || 0) * (Number(price) || 0);
     }, 0);
   };
