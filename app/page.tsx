@@ -7,7 +7,7 @@ import AdditionalCostList from "./components/AdditionalCostList";
 import TotalPrice from "./components/TotalPrice";
 
 export default function Page() {
-  const [windows, setWindows] = useState({});
+  const [windows, setWindows] = useState([]);
   const [prices, setPrices] = useState({});
   const [additionalCosts, setAdditionalCosts] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -21,15 +21,16 @@ export default function Page() {
       setAdditionalCosts(additionalCosts);
     } else {
       // 设置默认值
-      setWindows({
-        客厅阳台: {
+      setWindows([
+        {
+          name: "客厅阳台",
           推拉窗平方数: 0,
           平开窗平方数: 10,
           推拉窗开扇个数: 0,
           平开窗开扇个数: 2,
           转方角米数: 0,
         },
-      });
+      ]);
       setPrices({
         推拉窗每平方价格: 1680,
         平开窗每平方价格: 799,
@@ -55,7 +56,7 @@ export default function Page() {
   }, [windows, prices, additionalCosts, isLoaded]);
 
   const clearAllData = () => {
-    setWindows({});
+    setWindows([]);
     setPrices({});
     setAdditionalCosts([]);
     localStorage.removeItem("windowCalculatorData");

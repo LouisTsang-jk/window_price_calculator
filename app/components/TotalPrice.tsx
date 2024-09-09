@@ -22,9 +22,8 @@ export default function TotalPrice({ windows, prices, additionalCosts }) {
   };
 
   const calculateTotalPrice = () => {
-    const windowsTotal = Object.values(windows).reduce(
-      (total: number, params) =>
-        total + calculateWindowPrice(params as Record<string, number>),
+    const windowsTotal = windows.reduce(
+      (total, window) => total + calculateWindowPrice(window),
       0
     );
 
@@ -43,11 +42,11 @@ export default function TotalPrice({ windows, prices, additionalCosts }) {
       </Typography>
       <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
         <List>
-          {Object.entries(windows).map(([location, params]) => (
-            <ListItem key={location}>
+          {windows.map((window, index) => (
+            <ListItem key={index}>
               <ListItemText
-                primary={location}
-                secondary={`¥${calculateWindowPrice(params).toFixed(2)}`}
+                primary={window.name}
+                secondary={`¥${calculateWindowPrice(window).toFixed(2)}`}
               />
             </ListItem>
           ))}

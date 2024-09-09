@@ -4,22 +4,24 @@ import "@testing-library/jest-dom";
 import TotalPrice from "../TotalPrice";
 
 describe("TotalPrice", () => {
-  const mockWindows = {
-    客厅: {
+  const mockWindows = [
+    {
+      name: "客厅",
       推拉窗平方数: 5,
       平开窗平方数: 3,
       推拉窗开扇个数: 2,
       平开窗开扇个数: 1,
       转方角米数: 2,
     },
-    卧室: {
+    {
+      name: "卧室",
       推拉窗平方数: 3,
       平开窗平方数: 2,
       推拉窗开扇个数: 1,
       平开窗开扇个数: 1,
       转方角米数: 1,
     },
-  };
+  ];
 
   const mockPrices = {
     推拉窗每平方价格: 1000,
@@ -52,7 +54,7 @@ describe("TotalPrice", () => {
     // 额外费用
     // 1000 + 500 = 1500
 
-    // 总价 = 10700 + 6600 + 1500 = 18500
+    // 总价 = 10400 + 6600 + 1500 = 18500
 
     const totalPriceElement = screen.getByText(/总价:/);
     expect(totalPriceElement).toHaveTextContent("总价: ¥18500.00");

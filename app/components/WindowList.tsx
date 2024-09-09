@@ -24,15 +24,16 @@ export default function WindowList({ windows, setWindows }) {
   const [error, setError] = useState(false);
   const newWindowInputRef = useRef(null);
 
-  const [editingWindow, setEditingWindow] = useState(null);
+  const [editingIndex, setEditingIndex] = useState(null);
   const [editedWindowName, setEditedWindowName] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
 
-  const handleWindowChange = (location, field, value) => {
-    setWindows((prev) => ({
-      ...prev,
-      [location]: { ...prev[location], [field]: parseFloat(value) || 0 },
-    }));
+  const handleWindowChange = (index, field, value) => {
+    setWindows((prev) =>
+      prev.map((window, i) =>
+        i === index ? { ...window, [field]: parseFloat(value) || 0 } : window
+      )
+    );
   };
 
   const addNewWindow = () => {
@@ -42,47 +43,45 @@ export default function WindowList({ windows, setWindows }) {
       return;
     }
 
-    setWindows((prev) => ({
+    setWindows((prev) => [
       ...prev,
-      [newWindow]: {
+      {
+        name: newWindow,
         推拉窗平方数: 0,
         平开窗平方数: 0,
         推拉窗开扇个数: 0,
         平开窗开扇个数: 0,
         转方角米数: 0,
       },
-    }));
+    ]);
     setNewWindow("");
     setError(false);
   };
 
-  const startEditing = (location) => {
-    setEditingWindow(location);
-    setEditedWindowName(location);
+  const startEditing = (index) => {
+    setEditingIndex(index);
+    setEditedWindowName(windows[index].name);
   };
 
   const saveEditedWindow = () => {
-    if (editedWindowName && editedWindowName !== editingWindow) {
-      setWindows((prev) => {
-        const newWindows = { ...prev };
-        newWindows[editedWindowName] = newWindows[editingWindow];
-        delete newWindows[editingWindow];
-        return newWindows;
-      });
+    if (editedWindowName && editingIndex !== null) {
+      setWindows((prev) =>
+        prev.map((window, index) =>
+          index === editingIndex
+            ? { ...window, name: editedWindowName }
+            : window
+        )
+      );
     }
-    setEditingWindow(null);
+    setEditingIndex(null);
   };
 
-  const deleteWindow = (location) => {
-    setWindows((prev) => {
-      const newWindows = { ...prev };
-      delete newWindows[location];
-      return newWindows;
-    });
+  const deleteWindow = (index) => {
+    setWindows((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const openDeleteConfirmation = (location) => {
-    setDeleteConfirmation(location);
+  const openDeleteConfirmation = (index) => {
+    setDeleteConfirmation(index);
   };
 
   const closeDeleteConfirmation = () => {
@@ -90,7 +89,7 @@ export default function WindowList({ windows, setWindows }) {
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation) {
+    if (deleteConfirmation !== null) {
       deleteWindow(deleteConfirmation);
       closeDeleteConfirmation();
     }
@@ -101,15 +100,15 @@ export default function WindowList({ windows, setWindows }) {
       <Typography variant="h6" gutterBottom>
         窗户列表
       </Typography>
-      {Object.keys(windows).length === 0 ? (
+      {windows.length === 0 ? (
         <Typography variant="body1" color="text.secondary" align="center">
           暂无窗户，请添加新窗户
         </Typography>
       ) : (
         <List>
-          {Object.entries(windows).map(([location, params]) => (
+          {windows.map((window, index) => (
             <ListItem
-              key={location}
+              key={index}
               component={Paper}
               elevation={3}
               sx={{ mb: 2, p: 2 }}
@@ -121,7 +120,7 @@ export default function WindowList({ windows, setWindows }) {
                   justifyContent="space-between"
                   mb={2}
                 >
-                  {editingWindow === location ? (
+                  {editingIndex === index ? (
                     <>
                       <Box display="flex" alignItems="center">
                         <TextField
@@ -134,7 +133,7 @@ export default function WindowList({ windows, setWindows }) {
                         </IconButton>
                       </Box>
                       <IconButton
-                        onClick={() => openDeleteConfirmation(location)}
+                        onClick={() => openDeleteConfirmation(index)}
                         color="error"
                       >
                         <DeleteIcon />
@@ -143,13 +142,15 @@ export default function WindowList({ windows, setWindows }) {
                   ) : (
                     <>
                       <Box display="flex" alignItems="center">
-                        <Typography variant="subtitle1">{location}</Typography>
-                        <IconButton onClick={() => startEditing(location)}>
+                        <Typography variant="subtitle1">
+                          {window.name}
+                        </Typography>
+                        <IconButton onClick={() => startEditing(index)}>
                           <EditIcon />
                         </IconButton>
                       </Box>
                       <IconButton
-                        onClick={() => openDeleteConfirmation(location)}
+                        onClick={() => openDeleteConfirmation(index)}
                         color="error"
                       >
                         <DeleteIcon />
@@ -158,20 +159,22 @@ export default function WindowList({ windows, setWindows }) {
                   )}
                 </Box>
                 <Grid container spacing={2}>
-                  {Object.entries(params).map(([field, value]) => (
-                    <Grid item xs={12} sm={6} md={4} key={field}>
-                      <TextField
-                        label={field}
-                        type="number"
-                        value={value}
-                        onChange={(e) =>
-                          handleWindowChange(location, field, e.target.value)
-                        }
-                        size="small"
-                        fullWidth
-                      />
-                    </Grid>
-                  ))}
+                  {Object.entries(window)
+                    .filter(([key]) => key !== "name")
+                    .map(([field, value]) => (
+                      <Grid item xs={12} sm={6} md={4} key={field}>
+                        <TextField
+                          label={field}
+                          type="number"
+                          value={value}
+                          onChange={(e) =>
+                            handleWindowChange(index, field, e.target.value)
+                          }
+                          size="small"
+                          fullWidth
+                        />
+                      </Grid>
+                    ))}
                 </Grid>
               </Box>
             </ListItem>
