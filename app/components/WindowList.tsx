@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   List,
   ListItem,
@@ -21,6 +21,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function WindowList({ windows, setWindows }) {
   const [newWindow, setNewWindow] = useState("");
+  const [error, setError] = useState(false);
+  const newWindowInputRef = useRef(null);
+
   const [editingWindow, setEditingWindow] = useState(null);
   const [editedWindowName, setEditedWindowName] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
@@ -33,19 +36,24 @@ export default function WindowList({ windows, setWindows }) {
   };
 
   const addNewWindow = () => {
-    if (newWindow) {
-      setWindows((prev) => ({
-        ...prev,
-        [newWindow]: {
-          推拉窗平方数: 0,
-          平开窗平方数: 0,
-          推拉窗开扇个数: 0,
-          平开窗开扇个数: 0,
-          转方角米数: 0,
-        },
-      }));
-      setNewWindow("");
+    if (!newWindow.trim()) {
+      setError(true);
+      newWindowInputRef.current.focus();
+      return;
     }
+
+    setWindows((prev) => ({
+      ...prev,
+      [newWindow]: {
+        推拉窗平方数: 0,
+        平开窗平方数: 0,
+        推拉窗开扇个数: 0,
+        平开窗开扇个数: 0,
+        转方角米数: 0,
+      },
+    }));
+    setNewWindow("");
+    setError(false);
   };
 
   const startEditing = (location) => {
@@ -176,6 +184,9 @@ export default function WindowList({ windows, setWindows }) {
           value={newWindow}
           onChange={(e) => setNewWindow(e.target.value)}
           size="small"
+          error={error}
+          helperText={error ? "请填写窗户名称" : ""}
+          inputRef={newWindowInputRef}
         />
         <Button
           onClick={addNewWindow}
