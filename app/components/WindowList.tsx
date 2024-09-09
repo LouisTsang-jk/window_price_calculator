@@ -6,10 +6,17 @@ import {
   Button,
   Typography,
   Box,
+  Paper,
+  Grid,
+  IconButton,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 
 export default function WindowList({ windows, setWindows }) {
   const [newWindow, setNewWindow] = useState("");
+  const [editingWindow, setEditingWindow] = useState(null);
+  const [editedWindowName, setEditedWindowName] = useState("");
 
   const handleWindowChange = (location, field, value) => {
     setWindows((prev) => ({
@@ -34,6 +41,23 @@ export default function WindowList({ windows, setWindows }) {
     }
   };
 
+  const startEditing = (location) => {
+    setEditingWindow(location);
+    setEditedWindowName(location);
+  };
+
+  const saveEditedWindow = () => {
+    if (editedWindowName && editedWindowName !== editingWindow) {
+      setWindows((prev) => {
+        const newWindows = { ...prev };
+        newWindows[editedWindowName] = newWindows[editingWindow];
+        delete newWindows[editingWindow];
+        return newWindows;
+      });
+    }
+    setEditingWindow(null);
+  };
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -41,21 +65,49 @@ export default function WindowList({ windows, setWindows }) {
       </Typography>
       <List>
         {Object.entries(windows).map(([location, params]) => (
-          <ListItem key={location}>
-            <Typography variant="subtitle1">{location}</Typography>
-            {Object.entries(params).map(([field, value]) => (
-              <TextField
-                key={field}
-                label={field}
-                type="number"
-                value={value}
-                onChange={(e) =>
-                  handleWindowChange(location, field, e.target.value)
-                }
-                size="small"
-                style={{ margin: "0 8px" }}
-              />
-            ))}
+          <ListItem
+            key={location}
+            component={Paper}
+            elevation={3}
+            sx={{ mb: 2, p: 2 }}
+          >
+            <Box width="100%">
+              {editingWindow === location ? (
+                <Box display="flex" alignItems="center" mb={2}>
+                  <TextField
+                    value={editedWindowName}
+                    onChange={(e) => setEditedWindowName(e.target.value)}
+                    size="small"
+                  />
+                  <IconButton onClick={saveEditedWindow}>
+                    <SaveIcon />
+                  </IconButton>
+                </Box>
+              ) : (
+                <Box display="flex" alignItems="center" mb={2}>
+                  <Typography variant="subtitle1">{location}</Typography>
+                  <IconButton onClick={() => startEditing(location)}>
+                    <EditIcon />
+                  </IconButton>
+                </Box>
+              )}
+              <Grid container spacing={2}>
+                {Object.entries(params).map(([field, value]) => (
+                  <Grid item xs={12} sm={6} md={4} key={field}>
+                    <TextField
+                      label={field}
+                      type="number"
+                      value={value}
+                      onChange={(e) =>
+                        handleWindowChange(location, field, e.target.value)
+                      }
+                      size="small"
+                      fullWidth
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
           </ListItem>
         ))}
       </List>

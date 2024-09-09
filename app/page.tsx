@@ -1,35 +1,69 @@
 "use client";
-import { useState } from "react";
-import { Container, Typography, Box } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Container, Typography, Box, Button } from "@mui/material";
 import WindowList from "./components/WindowList";
 import PriceList from "./components/PriceList";
 import AdditionalCostList from "./components/AdditionalCostList";
 import TotalPrice from "./components/TotalPrice";
 
 export default function Page() {
-  const [windows, setWindows] = useState({
-    "5楼阳台": {
-      推拉窗平方数: 0,
-      平开窗平方数: 11,
-      推拉窗开扇个数: 0,
-      平开窗开扇个数: 2,
-      转方角米数: 0,
-    },
-    // ... 其他窗户数据 ...
-  });
+  const [windows, setWindows] = useState({});
+  const [prices, setPrices] = useState({});
+  const [additionalCosts, setAdditionalCosts] = useState([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const [prices, setPrices] = useState({
-    推拉窗每平方价格: 1680,
-    平开窗每平方价格: 799,
-    推拉窗开扇价格: 0,
-    平开窗开扇价格: 1380,
-    转方角每米价格: 300,
-  });
+  useEffect(() => {
+    const savedData = localStorage.getItem("windowCalculatorData");
+    if (savedData) {
+      const { windows, prices, additionalCosts } = JSON.parse(savedData);
+      setWindows(windows);
+      setPrices(prices);
+      setAdditionalCosts(additionalCosts);
+    } else {
+      // 设置默认值
+      setWindows({
+        "5楼阳台": {
+          推拉窗平方数: 0,
+          平开窗平方数: 11,
+          推拉窗开扇个数: 0,
+          平开窗开扇个数: 2,
+          转方角米数: 0,
+        },
+      });
+      setPrices({
+        推拉窗每平方价格: 1680,
+        平开窗每平方价格: 799,
+        推拉窗开扇价格: 0,
+        平开窗开扇价格: 1380,
+        转方角每米价格: 300,
+      });
+      setAdditionalCosts([
+        { name: "吊装费", cost: 2500 },
+        { name: "其他费用", cost: 450 },
+      ]);
+    }
+    setIsLoaded(true);
+  }, []);
 
-  const [additionalCosts, setAdditionalCosts] = useState([
-    { name: "吊装费", cost: 2500 },
-    { name: "其他费用", cost: 450 },
-  ]);
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem(
+        "windowCalculatorData",
+        JSON.stringify({ windows, prices, additionalCosts })
+      );
+    }
+  }, [windows, prices, additionalCosts, isLoaded]);
+
+  const clearAllData = () => {
+    setWindows({});
+    setPrices({});
+    setAdditionalCosts([]);
+    localStorage.removeItem("windowCalculatorData");
+  };
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Container maxWidth="md">
@@ -53,6 +87,11 @@ export default function Page() {
         prices={prices}
         additionalCosts={additionalCosts}
       />
+      <Box mt={4}>
+        <Button variant="contained" color="secondary" onClick={clearAllData}>
+          清空所有数据
+        </Button>
+      </Box>
     </Container>
   );
 }
