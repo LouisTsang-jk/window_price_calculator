@@ -1,9 +1,9 @@
-import { Metadata } from 'next'
-import Providers from './components/Providers'
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "窗户总价计算器",
+  title: "窗户价格计算器",
   description: "计算窗户的总价格",
+  icons: "/favicon.webp",
 };
 
 export default function RootLayout({
@@ -13,9 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh">
-      <body>
-        <Providers>{children}</Providers>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

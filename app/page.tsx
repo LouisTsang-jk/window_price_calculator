@@ -67,9 +67,9 @@ export default function Page() {
   }
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        窗户价格计算器
+        🪟 窗户价格计算器
       </Typography>
       <Box mb={4}>
         <WindowList windows={windows} setWindows={setWindows} />
