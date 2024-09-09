@@ -32,10 +32,6 @@ services:
           args:
             - run
             - start
-        # 添加以下预部署命令
-        beforeBuild:
-          - npm install
-          - npm run build
       triggers:
         - name: httpTrigger
           type: http
