@@ -9,14 +9,21 @@ import {
   Paper,
   Grid,
   IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function WindowList({ windows, setWindows }) {
   const [newWindow, setNewWindow] = useState("");
   const [editingWindow, setEditingWindow] = useState(null);
   const [editedWindowName, setEditedWindowName] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
 
   const handleWindowChange = (location, field, value) => {
     setWindows((prev) => ({
@@ -58,59 +65,111 @@ export default function WindowList({ windows, setWindows }) {
     setEditingWindow(null);
   };
 
+  const deleteWindow = (location) => {
+    setWindows((prev) => {
+      const newWindows = { ...prev };
+      delete newWindows[location];
+      return newWindows;
+    });
+  };
+
+  const openDeleteConfirmation = (location) => {
+    setDeleteConfirmation(location);
+  };
+
+  const closeDeleteConfirmation = () => {
+    setDeleteConfirmation(null);
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirmation) {
+      deleteWindow(deleteConfirmation);
+      closeDeleteConfirmation();
+    }
+  };
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
         窗户列表
       </Typography>
-      <List>
-        {Object.entries(windows).map(([location, params]) => (
-          <ListItem
-            key={location}
-            component={Paper}
-            elevation={3}
-            sx={{ mb: 2, p: 2 }}
-          >
-            <Box width="100%">
-              {editingWindow === location ? (
-                <Box display="flex" alignItems="center" mb={2}>
-                  <TextField
-                    value={editedWindowName}
-                    onChange={(e) => setEditedWindowName(e.target.value)}
-                    size="small"
-                  />
-                  <IconButton onClick={saveEditedWindow}>
-                    <SaveIcon />
-                  </IconButton>
+      {Object.keys(windows).length === 0 ? (
+        <Typography variant="body1" color="text.secondary" align="center">
+          暂无窗户，请添加新窗户
+        </Typography>
+      ) : (
+        <List>
+          {Object.entries(windows).map(([location, params]) => (
+            <ListItem
+              key={location}
+              component={Paper}
+              elevation={3}
+              sx={{ mb: 2, p: 2 }}
+            >
+              <Box width="100%">
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={2}
+                >
+                  {editingWindow === location ? (
+                    <>
+                      <Box display="flex" alignItems="center">
+                        <TextField
+                          value={editedWindowName}
+                          onChange={(e) => setEditedWindowName(e.target.value)}
+                          size="small"
+                        />
+                        <IconButton onClick={saveEditedWindow}>
+                          <SaveIcon />
+                        </IconButton>
+                      </Box>
+                      <IconButton
+                        onClick={() => openDeleteConfirmation(location)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </>
+                  ) : (
+                    <>
+                      <Box display="flex" alignItems="center">
+                        <Typography variant="subtitle1">{location}</Typography>
+                        <IconButton onClick={() => startEditing(location)}>
+                          <EditIcon />
+                        </IconButton>
+                      </Box>
+                      <IconButton
+                        onClick={() => openDeleteConfirmation(location)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </>
+                  )}
                 </Box>
-              ) : (
-                <Box display="flex" alignItems="center" mb={2}>
-                  <Typography variant="subtitle1">{location}</Typography>
-                  <IconButton onClick={() => startEditing(location)}>
-                    <EditIcon />
-                  </IconButton>
-                </Box>
-              )}
-              <Grid container spacing={2}>
-                {Object.entries(params).map(([field, value]) => (
-                  <Grid item xs={12} sm={6} md={4} key={field}>
-                    <TextField
-                      label={field}
-                      type="number"
-                      value={value}
-                      onChange={(e) =>
-                        handleWindowChange(location, field, e.target.value)
-                      }
-                      size="small"
-                      fullWidth
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </ListItem>
-        ))}
-      </List>
+                <Grid container spacing={2}>
+                  {Object.entries(params).map(([field, value]) => (
+                    <Grid item xs={12} sm={6} md={4} key={field}>
+                      <TextField
+                        label={field}
+                        type="number"
+                        value={value}
+                        onChange={(e) =>
+                          handleWindowChange(location, field, e.target.value)
+                        }
+                        size="small"
+                        fullWidth
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            </ListItem>
+          ))}
+        </List>
+      )}
       <Box display="flex" alignItems="center" mt={2}>
         <TextField
           label="新窗户名称"
@@ -126,6 +185,21 @@ export default function WindowList({ windows, setWindows }) {
           添加窗户
         </Button>
       </Box>
+
+      <Dialog open={!!deleteConfirmation} onClose={closeDeleteConfirmation}>
+        <DialogTitle>确认删除</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            您确定要删除"{deleteConfirmation}"窗户吗？此操作无法撤销。
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDeleteConfirmation}>取消</Button>
+          <Button onClick={confirmDelete} color="error">
+            删除
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

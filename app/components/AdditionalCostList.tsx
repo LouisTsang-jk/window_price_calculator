@@ -44,7 +44,7 @@ export default function AdditionalCostList({
       <Typography variant="h6" gutterBottom>
         额外费用
       </Typography>
-      <List>
+      <List sx={{ "& .MuiListItem-root": { paddingLeft: 0, paddingRight: 0 } }}>
         {additionalCosts.map((cost, index) => (
           <ListItem key={index}>
             <TextField
@@ -64,13 +64,13 @@ export default function AdditionalCostList({
           </ListItem>
         ))}
       </List>
-      <Box display="flex" alignItems="center" mt={2}>
+      <Box display="flex" alignItems="center" mt={2} flexWrap="nowrap">
         <TextField
           label="新费用名称"
           value={newCostName}
           onChange={(e) => setNewCostName(e.target.value)}
           size="small"
-          style={{ marginRight: 8 }}
+          style={{ marginRight: 8, flexGrow: 1 }}
         />
         <TextField
           label="新费用金额"
@@ -78,9 +78,13 @@ export default function AdditionalCostList({
           value={newCostValue}
           onChange={(e) => setNewCostValue(e.target.value)}
           size="small"
-          style={{ marginRight: 8 }}
+          style={{ marginRight: 8, flexGrow: 1 }}
         />
-        <Button onClick={addNewCost} variant="contained">
+        <Button
+          onClick={addNewCost}
+          variant="contained"
+          sx={{ whiteSpace: "nowrap" }}
+        >
           添加费用
         </Button>
       </Box>
