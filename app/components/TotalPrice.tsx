@@ -8,28 +8,27 @@ import {
 } from "@mui/material";
 
 export default function TotalPrice({ windows, prices, additionalCosts }) {
-  const calculateWindowPrice = (params) => {
-    return (
-      params["推拉窗平方数"] * prices["推拉窗每平方价格"] +
-      params["平开窗平方数"] * prices["平开窗每平方价格"] +
-      params["推拉窗开扇个数"] * prices["推拉窗开扇价格"] +
-      params["平开窗开扇个数"] * prices["平开窗开扇价格"] +
-      params["转方角米数"] * prices["转方角每米价格"]
-    );
+  const calculateWindowPrice = (params): number => {
+    return Object.entries(params).reduce((total, [key, value]) => {
+      const price =
+        prices[key.replace("平方数", "每平方价格").replace("个数", "价格")];
+      return total + (Number(value) || 0) * (Number(price) || 0);
+    }, 0);
   };
 
   const calculateTotalPrice = () => {
-    let total = 0;
+    const windowsTotal = Object.values(windows).reduce(
+      (total: number, params) =>
+        total + calculateWindowPrice(params as Record<string, number>),
+      0
+    );
 
-    // 计算窗户费用
-    for (const params of Object.values(windows)) {
-      total += calculateWindowPrice(params);
-    }
+    const additionalTotal = additionalCosts.reduce(
+      (sum, cost) => sum + (Number(cost.cost) || 0),
+      0
+    );
 
-    // 添加额外费用
-    total += additionalCosts.reduce((sum, cost) => sum + cost.cost, 0);
-
-    return total.toFixed(2);
+    return (windowsTotal + additionalTotal).toFixed(2);
   };
 
   return (
