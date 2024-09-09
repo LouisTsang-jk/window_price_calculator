@@ -6,7 +6,14 @@ import {
   Button,
   Typography,
   Box,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function AdditionalCostList({
   additionalCosts,
@@ -17,6 +24,7 @@ export default function AdditionalCostList({
   const [error, setError] = useState({ name: false, value: false });
   const nameInputRef = useRef(null);
   const valueInputRef = useRef(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
 
   const handleCostChange = (index, field, value) => {
     setAdditionalCosts((prev) =>
@@ -29,6 +37,19 @@ export default function AdditionalCostList({
           : cost
       )
     );
+  };
+
+  const handleDeleteCost = (index) => {
+    setAdditionalCosts((prev) => prev.filter((_, i) => i !== index));
+    setDeleteConfirmation(null);
+  };
+
+  const openDeleteConfirmation = (index) => {
+    setDeleteConfirmation(index);
+  };
+
+  const closeDeleteConfirmation = () => {
+    setDeleteConfirmation(null);
   };
 
   const addNewCost = () => {
@@ -75,7 +96,14 @@ export default function AdditionalCostList({
               value={cost.cost}
               onChange={(e) => handleCostChange(index, "cost", e.target.value)}
               size="small"
+              style={{ marginRight: 8 }}
             />
+            <IconButton
+              onClick={() => openDeleteConfirmation(index)}
+              color="error"
+            >
+              <DeleteIcon />
+            </IconButton>
           </ListItem>
         ))}
       </List>
@@ -109,6 +137,27 @@ export default function AdditionalCostList({
           添加费用
         </Button>
       </Box>
+
+      <Dialog
+        open={deleteConfirmation !== null}
+        onClose={closeDeleteConfirmation}
+      >
+        <DialogTitle>确认删除</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            您确定要删除这项额外费用吗？此操作无法撤销。
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDeleteConfirmation}>取消</Button>
+          <Button
+            onClick={() => handleDeleteCost(deleteConfirmation)}
+            color="error"
+          >
+            删除
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
